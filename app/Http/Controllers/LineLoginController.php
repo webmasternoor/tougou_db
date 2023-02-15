@@ -26,6 +26,7 @@ class LineLoginController extends Controller
      */
     public function check(Request $request)
     {
+        
         try {
             $client = new Client();
             $response = $client->request('GET', 'https://api.socialplus.jp/api/authenticated_user', [
@@ -42,8 +43,7 @@ class LineLoginController extends Controller
             $userResponse = $client->request('GET', 'https://api.socialplus.jp/api/user_attribute', [
                 'form_params' => [
                     'key' => Config::get('app.social.line.social_plus_api_key'),
-                    'identifier' =>  $uniqueSocialPlusId,
-
+                    'identifier' =>  $uniqueSocialPlusId
                 ]
             ]);
 
@@ -74,23 +74,12 @@ class LineLoginController extends Controller
                 ])
             ]);
         }
-    
+        
         if ($request->exists('previous_url') && $request->previous_url != '') {
             
-            $a = $request->previous_url. "/user/check";
-            $b = $request->status;
-            $c = $request->token;
-           
-            return redirect()->away($a.'?b='.$b.'?c='.$c);
-            
-            // return $this->send("POST", $request->previous_url . "/user/check", $request->all());
-
-
-            // $endPoint = Http::get($request->previous_url . "/user/check", $request);
-            // if($endPoint->status() == 200)
-            // {
-            //     return redirect($request->previous_url. "/user/login");
-            // }
+            // $params = array_merge($request->only(['status']), $lineinfo);
+            return redirect()->away($request->previous_url . "user/line/check" . '?' . http_build_query($lineinfo));
+            // dd($lineinfo);
         }
 
         return response()->json(['end_point' => true], 200);

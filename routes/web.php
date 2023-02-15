@@ -72,4 +72,5 @@ Route::resource('rireki', RirekiController::class);
 Route::group(['prefix' => 'user'], function () {
     Route::get('/login/line', [LineLoginController::class, 'login'])->name('login.line');
     Route::get('/line/check', [LineLoginController::class, 'check'])->name('login.line.check');
+    Route::get('/error', [LineLoginController::class, 'check'])->name('login.line.error');
 });
