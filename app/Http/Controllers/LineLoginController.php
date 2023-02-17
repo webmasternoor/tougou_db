@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\TougouUser;
 use App\Models\TougouUserSocialLogin;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 
 class LineLoginController extends Controller
@@ -25,8 +23,7 @@ class LineLoginController extends Controller
      * @return \Illuminate\Http\Client\Response
      */
     public function check(Request $request)
-    {
-        
+    {        
         try {
             $client = new Client();
             $response = $client->request('GET', 'https://api.socialplus.jp/api/authenticated_user', [
@@ -76,10 +73,22 @@ class LineLoginController extends Controller
         }
         
         if ($request->exists('previous_url') && $request->previous_url != '') {
-            
             // $params = array_merge($request->only(['status']), $lineinfo);
-            return redirect()->away($request->previous_url . "user/line/check" . '?' . http_build_query($lineinfo));
-            // dd($lineinfo);
+            $params = [
+                'status' => "authorized",
+                'user_identifier' => $uniqueSocialPlusId,
+                'email_address' => $lineinfo['user']['primary_key'],
+            ];            
+            
+            // E-Resident
+            if ($request->previous_url == 'http://localhost:8000/') {               
+                return redirect()->away($request->previous_url . "user/line/check" . '?' . http_build_query($params));
+            }
+
+            // E-Doctor
+            if ($request->previous_url == 'http://e-doctor.test/') {
+                return redirect()->away($request->previous_url . "mypage/dr/login/line" . '?' . http_build_query($params));
+            }            
         }
 
         return response()->json(['end_point' => true], 200);
